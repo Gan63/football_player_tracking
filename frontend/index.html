@@ -1,0 +1,993 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>⚽PLAYER TRACKER</title>
+    <link rel="icon" href="data:,">
+    <style>
+        :root {
+            --primary: #1a1a2e;
+            --secondary: #7c3aed;
+            --accent: #a78bfa;
+            --bg: #0f0f1e;
+            --card: #1f1f35;
+            --glass: rgba(31, 31, 53, 0.85);
+            --glass-blur: 18px;
+            --shadow: 0 8px 40px rgba(0, 0, 0, 0.4);
+            --text-primary: #e0e0e0;
+            --text-secondary: #a0a0b0;
+            --success: #10b981;
+            --warning: #f59e0b;
+            --danger: #ef4444;
+        }
+        
+        * { box-sizing: border-box; }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: var(--bg);
+            min-height: 100vh;
+            margin: 0;
+            color: var(--text-primary);
+            overflow-x: hidden;
+        }
+        
+        .background-3d {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            z-index: -1;
+            pointer-events: none;
+            background: radial-gradient(circle at 30% 40%, #2d2d4a 0px, transparent 350px),
+                        radial-gradient(circle at 80% 70%, #1f1f35 0px, transparent 350px),
+                        linear-gradient(120deg, #0f0f1e 40%, #1a1a2e 100%);
+        }
+        
+        .particles {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+            pointer-events: none;
+        }
+        
+        .particle {
+            position: absolute;
+            background: var(--accent);
+            border-radius: 50%;
+            opacity: 0.3;
+            animation: float 6s infinite ease-in-out;
+        }
+        
+        @keyframes float {
+            0%, 100% { transform: translateY(0) translateX(0); }
+            25% { transform: translateY(-20px) translateX(10px); }
+            50% { transform: translateY(-40px) translateX(-10px); }
+            75% { transform: translateY(-20px) translateX(5px); }
+        }
+        
+        .header {
+            width: 100%;
+            background: var(--glass);
+            box-shadow: var(--shadow);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            padding: 24px 0 16px 0;
+            text-align: center;
+            backdrop-filter: blur(var(--glass-blur));
+            border-bottom: 1px solid rgba(167, 139, 250, 0.2);
+        }
+        
+        .header h1 {
+            font-size: 2.8rem;
+            font-weight: 700;
+            background: linear-gradient(135deg, #a78bfa 0%, #7c3aed 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            letter-spacing: 2px;
+            margin: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            text-shadow: 0 0 30px rgba(167, 139, 250, 0.3);
+        }
+        
+        
+    .football-emoji {
+        display: inline-block;
+        font-size: 3rem;
+        vertical-align: middle;
+        margin-right: 12px;
+        animation: football-spin 2.2s linear infinite;
+        filter: none; /* remove blur / drop-shadow */
+        -webkit-font-smoothing: antialiased;
+        -moz-osx-font-smoothing: grayscale;
+        backface-visibility: hidden;
+}
+        
+        
+        @keyframes football-spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        .header p {
+            font-size: 1.1rem;
+            color: var(--text-secondary);
+            margin: 8px 0 0 0;
+        }
+        
+        .nav-tabs {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            margin-top: 16px;
+            flex-wrap: wrap;
+        }
+        
+        .tab-btn {
+            background: rgba(124, 58, 237, 0.2);
+            border: 2px solid var(--secondary);
+            color: var(--text-primary);
+            padding: 8px 24px;
+            border-radius: 20px;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-size: 0.95rem;
+            font-weight: 500;
+        }
+        
+        .tab-btn:hover {
+            background: var(--secondary);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 15px rgba(124, 58, 237, 0.4);
+        }
+        
+        .tab-btn.active {
+            background: var(--secondary);
+            color: #fff;
+        }
+        
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        
+        .upload-section {
+            margin: 30px auto;
+            max-width: 550px;
+            background: var(--glass);
+            padding: 32px 28px;
+            border-radius: 24px;
+            box-shadow: var(--shadow);
+            backdrop-filter: blur(var(--glass-blur));
+            border: 1px solid rgba(167, 139, 250, 0.2);
+            transition: all 0.3s;
+        }
+        
+        .upload-section:hover {
+            box-shadow: 0 12px 50px rgba(124, 58, 237, 0.3);
+        }
+        
+        .upload-area {
+            border: 2px dashed var(--secondary);
+            border-radius: 16px;
+            padding: 40px 20px;
+            background: rgba(124, 58, 237, 0.07);
+            margin-bottom: 20px;
+            transition: all 0.3s;
+            cursor: pointer;
+            color: var(--accent);
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .upload-area::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: linear-gradient(45deg, transparent, rgba(167, 139, 250, 0.1), transparent);
+            animation: shimmer 3s infinite;
+        }
+        
+        @keyframes shimmer {
+            0% { transform: translateX(-100%) translateY(-100%) rotate(45deg); }
+            100% { transform: translateX(100%) translateY(100%) rotate(45deg); }
+        }
+        
+        .upload-area:hover {
+            border-color: var(--accent);
+            background: rgba(167, 139, 250, 0.14);
+            transform: scale(1.02);
+        }
+        
+        .upload-icon {
+            font-size: 3rem;
+            margin-bottom: 10px;
+            animation: bounce 2s infinite;
+        }
+        
+        @keyframes bounce {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-10px); }
+        }
+        
+        .custom-file-input {
+            display: none;
+        }
+        
+        .file-info {
+            margin: 16px 0;
+            padding: 12px;
+            background: rgba(16, 185, 129, 0.1);
+            border-radius: 10px;
+            border-left: 4px solid var(--success);
+            color: var(--success);
+        }
+        
+        .btn {
+            border: none;
+            background: linear-gradient(135deg, var(--secondary) 0%, #6b21a8 100%);
+            color: #fff;
+            font-size: 1.1rem;
+            font-weight: 600;
+            padding: 14px 42px;
+            border-radius: 30px;
+            cursor: pointer;
+            transition: all 0.3s;
+            margin: 8px;
+            box-shadow: 0 4px 15px rgba(124, 58, 237, 0.3);
+            position: relative;
+            overflow: hidden;
+            z-index: 1;
+        }
+        
+        .btn::before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 0;
+            height: 0;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.2);
+            transform: translate(-50%, -50%);
+            transition: width 0.6s, height 0.6s;
+            z-index: -1;
+        }
+        
+        .btn:hover::before {
+            width: 300px;
+            height: 300px;
+        }
+        
+        .btn:disabled {
+            background: #4a5568;
+            cursor: not-allowed;
+            box-shadow: none;
+        }
+        
+        .btn:hover:enabled {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 25px rgba(124, 58, 237, 0.5);
+        }
+        
+        .progress-container {
+            width: 100%;
+            height: 8px;
+            background: rgba(124, 58, 237, 0.2);
+            border-radius: 10px;
+            overflow: hidden;
+            margin: 16px 0;
+        }
+        
+        .progress-bar {
+            height: 100%;
+            background: linear-gradient(90deg, var(--secondary), var(--accent));
+            width: 0%;
+            transition: width 0.3s;
+            border-radius: 10px;
+            box-shadow: 0 0 10px var(--accent);
+        }
+        
+        .video-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+            gap: 24px;
+            margin: 30px 0;
+        }
+        
+        .video-box {
+            background: var(--card);
+            border-radius: 16px;
+            box-shadow: 0 8px 30px rgba(124, 58, 237, 0.2);
+            padding: 16px;
+            transition: all 0.3s;
+            border: 1px solid rgba(167, 139, 250, 0.1);
+        }
+        
+        .video-box:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 12px 40px rgba(124, 58, 237, 0.4);
+        }
+        
+        .video-box label {
+            font-weight: 700;
+            font-size: 1.2rem;
+            letter-spacing: 1px;
+            display: block;
+            margin-bottom: 12px;
+            color: var(--accent);
+            text-align: center;
+        }
+        
+        .video-box video, .video-box iframe {
+            width: 100%;
+            min-height: 250px;
+            border-radius: 12px;
+            background: #14142a;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+        }
+        
+        .dashboard-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 24px;
+            margin: 24px 0;
+        }
+        
+        .stat-card {
+            background: var(--glass);
+            padding: 24px;
+            border-radius: 16px;
+            backdrop-filter: blur(var(--glass-blur));
+            border: 1px solid rgba(167, 139, 250, 0.2);
+            transition: all 0.3s;
+            text-align: center;
+        }
+        
+        .stat-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 12px 40px rgba(124, 58, 237, 0.3);
+        }
+        
+        .stat-icon {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+        }
+        
+        .stat-value {
+            font-size: 2.2rem;
+            font-weight: 700;
+            color: var(--accent);
+            margin: 8px 0;
+        }
+        
+        .stat-label {
+            font-size: 1rem;
+            color: var(--text-secondary);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+        
+        .chart-container {
+            background: var(--glass);
+            padding: 24px;
+            border-radius: 16px;
+            backdrop-filter: blur(var(--glass-blur));
+            margin: 24px 0;
+            border: 1px solid rgba(167, 139, 250, 0.2);
+        }
+        
+        .heatmap-grid {
+            display: grid;
+            grid-template-columns: repeat(10, 1fr);
+            gap: 4px;
+            margin: 20px 0;
+        }
+        
+        .heatmap-cell {
+            aspect-ratio: 1;
+            border-radius: 4px;
+            transition: all 0.3s;
+            cursor: pointer;
+        }
+        
+        .heatmap-cell:hover {
+            transform: scale(1.2);
+            box-shadow: 0 4px 15px rgba(167, 139, 250, 0.5);
+        }
+        
+        .player-list {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+            gap: 16px;
+            margin: 20px 0;
+        }
+        
+        .player-card {
+            background: linear-gradient(135deg, rgba(124, 58, 237, 0.2), rgba(167, 139, 250, 0.1));
+            padding: 16px;
+            border-radius: 12px;
+            border: 1px solid rgba(167, 139, 250, 0.3);
+            transition: all 0.3s;
+            cursor: pointer;
+            text-align: center;
+        }
+        
+        .player-card:hover {
+            transform: scale(1.05);
+            box-shadow: 0 8px 25px rgba(124, 58, 237, 0.4);
+        }
+        
+        .player-number {
+            font-size: 2rem;
+            font-weight: 700;
+            color: var(--accent);
+        }
+        
+        .hidden {
+            display: none !important;
+        }
+        
+        .pulse {
+            animation: pulse 2s infinite;
+        }
+        
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+        
+        .slide-in {
+            animation: slideIn 0.5s ease-out;
+        }
+        
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        .notification {
+            position: fixed;
+            top: 80px;
+            right: 20px;
+            background: var(--glass);
+            padding: 16px 24px;
+            border-radius: 12px;
+            border-left: 4px solid var(--success);
+            backdrop-filter: blur(var(--glass-blur));
+            box-shadow: var(--shadow);
+            z-index: 1000;
+            animation: slideInRight 0.5s ease-out;
+        }
+        
+        @keyframes slideInRight {
+            from {
+                transform: translateX(400px);
+                opacity: 0;
+            }
+            to {
+                transform: translateX(0);
+                opacity: 1;
+            }
+        }
+        
+        @media (max-width: 768px) {
+            .header h1 { font-size: 1.8rem; }
+            .football-emoji { font-size: 2rem; }
+            .video-grid { grid-template-columns: 1fr; }
+            .dashboard-grid { grid-template-columns: 1fr; }
+            .upload-section { padding: 20px; }
+        }
+    </style>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+    <div class="background-3d"></div>
+    <div class="particles" id="particles"></div>
+    
+    <header class="header">
+        <h1>
+            <span class="football-emoji" role="img">⚽</span>
+            PLAYER TRACKER
+        </h1>
+        <p>AI-Powered Advanced Player Analytics & Performance Insights</p>
+        <div class="nav-tabs">
+            <button class="tab-btn active" data-tab="upload">Upload</button>
+            <button class="tab-btn" data-tab="analysis">Analysis</button>
+            <button class="tab-btn" data-tab="players">Players</button>
+            <button class="tab-btn" data-tab="heatmap">Heatmap</button>
+        </div>
+    </header>
+    
+    <div class="container">
+        <!-- Upload Tab -->
+        <div class="tab-content" id="upload-tab">
+            <div class="upload-section slide-in">
+                <div class="upload-area" onclick="document.getElementById('video-upload').click();">
+                    <div class="upload-icon">📤</div>
+                    <div><strong>Drop your football video here</strong></div>
+                    <div style="font-size: 0.9em; color: var(--text-secondary); margin-top: 8px;">
+                        or click to browse (MP4, AVI, MOV up to 500MB)
+                    </div>
+                    <input class="custom-file-input" id="video-upload" type="file" accept="video/*" />
+                </div>
+                
+                <div class="file-info hidden" id="file-info">
+                    <strong id="filename"></strong><br />
+                    <span id="filesize"></span>
+                </div>
+                
+                <div class="progress-container hidden" id="progress-container">
+                    <div class="progress-bar" id="progress-bar"></div>
+                </div>
+                
+                <button class="btn" id="process-btn" disabled>🚀 Start AI Processing</button>
+                
+                <div class="hidden pulse" id="processing-msg" style="margin-top: 16px; color: var(--warning);">
+                    🔄 Processing your video with AI...
+                </div>
+            </div>
+            
+            <div class="video-grid hidden" id="video-section">
+                <div class="video-box slide-in" id="inputVideoBox">
+                    <label>📹 Input Video</label>
+                    <video controls id="inputVideo"></video>
+                </div>
+                <div class="video-box slide-in" style="animation-delay: 0.1s;">
+                    <label>🎯 Player Analysis Output</label>
+                    <video controls id="outputVideo"></video>
+                </div>
+            </div>
+            
+            <div style="text-align: center; margin: 20px 0;" class="hidden" id="play-controls">
+                <button class="btn" id="playBothBtn">▶️ SYNC PLAY BOTH</button>
+                <button class="btn" id="pauseBothBtn">⏸️ PAUSE BOTH</button>
+            </div>
+        </div>
+        
+        <!-- Analysis Tab -->
+        <div class="tab-content hidden" id="analysis-tab">
+            <div class="dashboard-grid slide-in">
+                <div class="stat-card">
+                    <div class="stat-icon">👥</div>
+                    <div class="stat-value" id="playersTracked">30</div>
+                    <div class="stat-label">Players Tracked from frames</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon">⚡</div>
+                    <div class="stat-value" id="avgSpeed">12.5 km/h</div>
+                    <div class="stat-label">Average Speed</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon">📏</div>
+                    <div class="stat-value" id="totalDistance">8,450 m</div>
+                    <div class="stat-label">Total Distance</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon">⏱️</div>
+                    <div class="stat-value" id="processingTime">43s</div>
+                    <div class="stat-label">Processing Time</div>
+                </div>
+            </div>
+            
+            
+            
+            <div class="chart-container slide-in">
+                <h2 style="color: var(--accent); margin-top: 0;">📈 Performance Over Time</h2>
+                <canvas id="lineChart"></canvas>
+            </div>
+            
+            <div class="chart-container slide-in">
+                <h2 style="color: var(--accent); margin-top: 0;">🏃 Sprint Analysis</h2>
+                <canvas id="barChart"></canvas>
+            </div>
+        </div>
+        
+        <!-- Players Tab -->
+        <div class="tab-content hidden" id="players-tab">
+            <div class="chart-container slide-in">
+                <h2 style="color: var(--accent); margin-top: 0;">⭐ Player Performance Overview</h2>
+                <div class="player-list" id="playerList"></div>
+            </div>
+        </div>
+        
+        <!-- Heatmap Tab -->
+        <div class="tab-content hidden" id="heatmap-tab">
+            <div class="chart-container slide-in">
+                <h2 style="color: var(--accent); margin-top: 0;">🔥 Player Movement Heatmap</h2>
+                <p style="color: var(--text-secondary);">Visual representation of player positions and movement intensity</p>
+                <div class="heatmap-grid" id="heatmapGrid"></div>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        // Create floating particles
+        function createParticles() {
+            const container = document.getElementById('particles');
+            for (let i = 0; i < 20; i++) {
+                const particle = document.createElement('div');
+                particle.className = 'particle';
+                particle.style.width = Math.random() * 4 + 2 + 'px';
+                particle.style.height = particle.style.width;
+                particle.style.left = Math.random() * 100 + '%';
+                particle.style.top = Math.random() * 100 + '%';
+                particle.style.animationDelay = Math.random() * 6 + 's';
+                particle.style.animationDuration = Math.random() * 4 + 4 + 's';
+                container.appendChild(particle);
+            }
+        }
+        createParticles();
+        
+        // Tab switching
+        const tabBtns = document.querySelectorAll('.tab-btn');
+        const tabContents = document.querySelectorAll('.tab-content');
+        
+        tabBtns.forEach(btn => {
+            btn.addEventListener('click', () => {
+                tabBtns.forEach(b => b.classList.remove('active'));
+                btn.classList.add('active');
+                
+                const tabName = btn.dataset.tab;
+                tabContents.forEach(content => {
+                    content.classList.add('hidden');
+                });
+                document.getElementById(tabName + '-tab').classList.remove('hidden');
+            });
+        });
+        
+        let uploadedFile = null;
+
+        // File upload handling
+        document.getElementById('video-upload').addEventListener('change', function(e) {
+            const file = e.target.files[0];
+            if (file) {
+                uploadedFile = file;
+                showNotification('✅ File uploaded successfully!');
+                document.getElementById('file-info').classList.remove('hidden');
+                document.getElementById('filename').textContent = file.name;
+                document.getElementById('filesize').textContent = `Size: ${(file.size / 1024 / 1024).toFixed(2)} MB`;
+                document.getElementById('process-btn').disabled = false;
+                
+                const inputVideo = document.getElementById('inputVideo');
+                inputVideo.src = URL.createObjectURL(file);
+                inputVideo.load();
+                
+                const iframe = document.getElementById('inputIframe');
+                if (iframe) iframe.classList.add('hidden');
+                inputVideo.classList.remove('hidden');
+            }
+        });
+        
+        document.getElementById('process-btn').addEventListener('click', function() {
+            if(uploadedFile) {
+                const formData = new FormData();
+                formData.append('video', uploadedFile);
+
+                fetch('/upload', {
+                    method: 'POST',
+                    body: formData
+                })
+                .then(response => {
+                    if (!response.ok) {
+                        return response.json().then(err => { throw new Error(err.error) });
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    if(data.error) {
+                        showNotification(`Error: ${data.error}`, 'danger');
+                        return;
+                    }
+                    showNotification(data.message);
+                    document.getElementById('processing-msg').classList.remove('hidden');
+                    document.getElementById('progress-container').classList.remove('hidden');
+                    pollStatus();
+                })
+                .catch(error => {
+                    showNotification('Upload failed: ' + error.message, 'danger');
+                    console.error('Error:', error);
+                });
+            }
+        });
+
+        function pollStatus() {
+            const interval = setInterval(() => {
+                fetch('/api/status')
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error(`HTTP error! status: ${response.status}`);
+                    }
+                    return response.json();
+                })
+                .then(statusData => {
+                    const progressBar = document.getElementById('progress-bar');
+                    progressBar.style.width = statusData.progress + '%';
+                    document.getElementById('processing-msg').textContent = `🔄 ${statusData.message}`;
+
+                    if (statusData.status === 'completed') {
+                        clearInterval(interval);
+                        document.getElementById('processing-msg').classList.add('hidden');
+                        document.getElementById('progress-container').classList.add('hidden');
+                        showNotification('🎉 Processing complete!');
+                        fetchResults();
+                    } else if (statusData.status === 'error') {
+                        clearInterval(interval);
+                        showNotification(`Error: ${statusData.message}`, 'danger');
+                    }
+                })
+                .catch(error => {
+                    clearInterval(interval);
+                    showNotification('Could not get status: ' + error.message, 'danger');
+                    console.error('Error:', error);
+                });
+            }, 2000);
+        }
+
+        function fetchResults() {
+            fetch('/api/tracking-data')
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                return response.json();
+            })
+            .then(data => {
+                if(data.error) {
+                    showNotification(`Error: ${data.error}`, 'danger');
+                    return;
+                }
+                document.getElementById('video-section').classList.remove('hidden');
+                document.getElementById('play-controls').classList.remove('hidden');
+                
+                const outputVideo = document.getElementById('outputVideo');
+                outputVideo.src = data.processed_video_url;
+                outputVideo.load();
+
+                updateDashboard(data);
+                generatePlayerData(data.team_statistics);
+                drawAllCharts(data);
+
+                setTimeout(() => {
+                    document.querySelector('[data-tab="analysis"]').click();
+                }, 1000);
+            })
+            .catch(error => {
+                showNotification('Could not fetch results: ' + error.message, 'danger');
+                console.error('Error:', error);
+            });
+        }
+
+        function updateDashboard(data) {
+            document.getElementById('playersTracked').textContent = data.match_info.total_players;
+            
+            const team1_players = data.team_statistics[1].players;
+            const team2_players = data.team_statistics[2].players;
+
+            const team1_avg_speed = team1_players.length > 0 ? team1_players.reduce((acc, p) => acc + p.avg_speed, 0) / team1_players.length : 0;
+            const team2_avg_speed = team2_players.length > 0 ? team2_players.reduce((acc, p) => acc + p.avg_speed, 0) / team2_players.length : 0;
+            const avg_speed = (team1_avg_speed + team2_avg_speed) / 2;
+            document.getElementById('avgSpeed').textContent = `${avg_speed.toFixed(1)} km/h`;
+
+            const team1_total_dist = team1_players.reduce((acc, p) => acc + p.total_distance, 0);
+            const team2_total_dist = team2_players.reduce((acc, p) => acc + p.total_distance, 0);
+            const total_distance = team1_total_dist + team2_total_dist;
+            document.getElementById('totalDistance').textContent = `${total_distance.toFixed(0)} m`;
+
+            const duration_match = data.match_info.duration.match(/\((.*?)s/);
+            if (duration_match && duration_match.length > 1) {
+                document.getElementById('processingTime').textContent = `${parseFloat(duration_match[1]).toFixed(1)}s`;
+            } else {
+                document.getElementById('processingTime').textContent = data.match_info.duration;
+            }
+        }
+        
+        // Play/Pause controls
+        document.getElementById('playBothBtn').addEventListener('click', function() {
+            const inputVid = document.getElementById('inputVideo');
+            const outputVid = document.getElementById('outputVideo');
+            if (!inputVid.classList.contains('hidden')) {
+                inputVid.currentTime = 0;
+                inputVid.play().catch(e => console.log('Play error:', e));
+            }
+            if (!outputVid.classList.contains('hidden')) {
+                outputVid.currentTime = 0;
+                outputVid.play().catch(e => console.log('Play error:', e));
+            }
+        });
+        
+        document.getElementById('pauseBothBtn').addEventListener('click', function() {
+            const inputVid = document.getElementById('inputVideo');
+            const outputVid = document.getElementById('outputVideo');
+            if (!inputVid.classList.contains('hidden')) {
+                inputVid.pause();
+            }
+            if (!outputVid.classList.contains('hidden')) {
+                outputVid.pause();
+            }
+        });
+ 
+        function showNotification(message, type = 'success') {
+            const notification = document.createElement('div');
+            notification.className = `notification ${type}`;
+            notification.textContent = message;
+            document.body.appendChild(notification);
+            setTimeout(() => {
+                notification.style.animation = 'slideOutRight 0.5s ease-out forwards';
+                setTimeout(() => notification.remove(), 500);
+            }, 3000);
+        }
+
+        function generatePlayerData(team_statistics) {
+            const playerList = document.getElementById('playerList');
+            playerList.innerHTML = '';
+            for (const teamId in team_statistics) {
+                const team = team_statistics[teamId];
+                team.players.forEach(player => {
+                    const playerCard = document.createElement('div');
+                    playerCard.className = 'player-card';
+                    playerCard.innerHTML = `<div class="player-number" style="color:${team.color}">#${player.id}</div><div>${player.name}</div>`;
+                    playerList.appendChild(playerCard);
+                });
+            }
+        }
+
+        let charts = {};
+        function drawAllCharts(data) {
+            if (charts.pie) charts.pie.destroy();
+            if (charts.line) charts.line.destroy();
+            if (charts.bar) charts.bar.destroy();
+            if (charts.radar) charts.radar.destroy();
+            if (charts.scatter) charts.scatter.destroy();
+
+            const chartOptions = {
+                plugins: { legend: { labels: { color: 'white' } } },
+                scales: { 
+                    x: { ticks: { color: 'white' }, grid: { color: 'rgba(255,255,255,0.1)' } }, 
+                    y: { ticks: { color: 'white' }, grid: { color: 'rgba(255,255,255,0.1)' } } 
+                }
+            };
+
+            // Pie Chart (guarded)
+            const pieEl = document.getElementById('teamPieChart');
+            if (pieEl) {
+                charts.pie = new Chart(pieEl, {
+                    type: 'pie',
+                    data: {
+                        labels: [data.team_statistics[1].name, data.team_statistics[2].name],
+                        datasets: [{
+                            data: [data.team_statistics[1].possession_time, data.team_statistics[2].possession_time],
+                            backgroundColor: [data.team_statistics[1].color, data.team_statistics[2].color]
+                        }]
+                    },
+                    options: { plugins: { legend: { labels: { color: 'white' } } } }
+                });
+            }
+
+            // Line Chart (guarded)
+            const lineEl = document.getElementById('lineChart');
+            if (lineEl) {
+                const labels = data.tracking_data.map(d => d.timestamp);
+                const avg_speed_data = data.tracking_data.map(d => {
+                    const players = Object.values(d.players);
+                    if (players.length === 0) return 0;
+                    const total_speed = players.reduce((acc, p) => acc + (p.speed || 0), 0);
+                    return total_speed / players.length;
+                });
+                charts.line = new Chart(lineEl, {
+                    type: 'line',
+                    data: {
+                        labels: labels,
+                        datasets: [{
+                            label: 'Avg Speed (km/h)',
+                            data: avg_speed_data,
+                            borderColor: '#a78bfa',
+                            tension: 0.3
+                        }]
+                    },
+                    options: chartOptions
+                });
+            }
+
+            // Bar Chart (guarded)
+            const barEl = document.getElementById('barChart');
+            if (barEl) {
+                const sprint_data = Object.values(data.team_statistics).flatMap(t => t.players || []).sort((a,b) => (b.max_speed||0) - (a.max_speed||0)).slice(0,5);
+                charts.bar = new Chart(barEl, {
+                    type: 'bar',
+                    data: {
+                        labels: sprint_data.map(p => p.name),
+                        datasets: [{
+                            label: 'Max Speed (km/h)',
+                            data: sprint_data.map(p => p.max_speed || 0),
+                            backgroundColor: 'rgba(124, 58, 237, 0.7)'
+                        }]
+                    },
+                    options: chartOptions
+                });
+            }
+
+            // Radar Chart (guarded)
+            const radarEl = document.getElementById('radarChart');
+            if (radarEl) {
+                const top_performers = Object.values(data.team_statistics).flatMap(t => t.players || []).slice(0, 2);
+                charts.radar = new Chart(radarEl, {
+                    type: 'radar',
+                    data: {
+                        labels: ['Speed', 'Distance'],
+                        datasets: top_performers.map((p, i) => ({
+                            label: p.name,
+                            data: [p.max_speed || 0, p.total_distance || 0],
+                            borderColor: (data.team_statistics[p.team === 1 ? 1 : 2] || {}).color || '#a78bfa',
+                            backgroundColor: i === 0 ? 'rgba(124, 58, 237, 0.3)' : 'rgba(167, 139, 250, 0.3)'
+                        }))
+                    },
+                    options: { 
+                        ...chartOptions, 
+                        scales: { 
+                            r: { pointLabels: { color: 'white' }, grid: { color: 'rgba(255,255,255,0.1)' }, angleLines: { color: 'rgba(255,255,255,0.1)' } } 
+                        } 
+                    }
+                });
+            }
+
+            // Heatmap (guarded)
+            const heatmap = document.getElementById('heatmapGrid');
+            if (heatmap) {
+                heatmap.innerHTML = '';
+                // If you have real heatmap data, replace this random intensity with it.
+                for (let i = 0; i < 100; i++) {
+                    const cell = document.createElement('div');
+                    cell.className = 'heatmap-cell';
+                    const intensity = Math.random();
+                    cell.style.backgroundColor = `rgba(167, 139, 250, ${Math.max(0.05, intensity) * 0.7})`;
+                    heatmap.appendChild(cell);
+                }
+            }
+
+            // Scatter Chart (guarded)
+            const scatterEl = document.getElementById('scatterChart');
+            if (scatterEl) {
+                const positions = data.tracking_data.flatMap(d => Object.values(d.players || {}).map(p => ({x: p.position?.[0] || 0, y: p.position?.[1] || 0, team: p.team})));
+                charts.scatter = new Chart(scatterEl, {
+                    type: 'scatter',
+                    data: {
+                        datasets: [{
+                            label: 'Team 1 Positions',
+                            data: positions.filter(p => p.team === 1).map(p => ({x: p.x, y: p.y})),
+                            backgroundColor: (data.team_statistics[1] || {}).color || '#7c3aed'
+                        },{
+                            label: 'Team 2 Positions',
+                            data: positions.filter(p => p.team === 2).map(p => ({x: p.x, y: p.y})),
+                            backgroundColor: (data.team_statistics[2] || {}).color || '#a78bfa'
+                        }]   
+                    },
+                    options: chartOptions
+                });
+            }
+        }
+
+        // run in console after fetchResults completed
+        console.log(window.latestData.tracking_data.slice(0,3).map(f => Object.values(f.players || {}).slice(0,3).map(p=>p.position)));
+    </script>
+</body>
+</html>
