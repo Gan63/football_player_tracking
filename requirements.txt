@@ -1,0 +1,16 @@
+ultralytics
+opencv-python
+numpy
+pandas
+matplotlib
+scikit-learn
+supervision
+torch
+torchvision
+PyYAML
+notebook
+ipywidgets
+Flask
+Flask-Cors
+asgiref
+av
