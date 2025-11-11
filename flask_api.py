@@ -13,6 +13,7 @@ import logging
 from datetime import datetime
 from werkzeug.utils import secure_filename
 # Configure logging
+app.config['MAX_CONTENT_LENGTH'] = 50 * 1024 * 1024  # 50 MB limit
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
@@ -1020,3 +1021,7 @@ if __name__ == '__main__':
         print("\n👋 Server stopped by user")
     except Exception as e:
         print(f"\n❌ Server error: {e}")
+del frame
+del result
+import gc
+gc.collect()
